@@ -1,632 +1,125 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
-  <title>NUVIO Browser</title>
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NUVIO</title>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
-    :root {
-      --bg: #0d0d0d;
-      --surface: #1a1a1a;
-      --border: #2a2a2a;
-      --text: #f0f0f0;
-      --muted: #888;
-      --accent: #ff5c35;
-      --accent2: #ff8c42;
-      --nav-active: #4f7fff;
-    }
-
-    html, body {
-      width: 100%;
-      height: 100%;
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Nunito', sans-serif;
-      -webkit-font-smoothing: antialiased;
-      overflow: hidden;
-    }
-
-    .phone-frame {
-      width: 100%;
-      max-width: 420px;
-      height: 100dvh;
-      margin: 0 auto;
-      display: flex;
-      flex-direction: column;
-      background: var(--bg);
-      position: relative;
-      overflow: hidden;
-    }
-
-    /* STATUS BAR */
-    .status-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 20px 6px;
-      font-family: 'Space Mono', monospace;
-      font-size: 11px;
-      color: var(--text);
-      flex-shrink: 0;
-    }
-    .status-left { font-weight: 700; letter-spacing: 0.03em; }
-    .status-right { display: flex; align-items: center; gap: 6px; font-size: 10px; }
-    .battery {
-      background: #444;
-      border-radius: 3px;
-      width: 26px;
-      height: 13px;
-      position: relative;
-      display: flex;
-      align-items: center;
-      padding: 2px;
-    }
-    .battery::after {
-      content: '';
-      position: absolute;
-      right: -4px;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 3px;
-      height: 6px;
-      background: #444;
-      border-radius: 0 2px 2px 0;
-    }
-    .battery-fill {
-      background: #4caf50;
-      border-radius: 2px;
-      height: 100%;
-      width: 90%;
-    }
-
-    /* CLEAN BANNER */
-    .clean-banner {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin: 6px 16px 12px;
-      padding: 10px 14px;
-      background: var(--surface);
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      flex-shrink: 0;
-      animation: fadeSlideDown 0.4s ease both;
-    }
-    .clean-banner span {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--muted);
-    }
-    .clean-btn {
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      color: #fff;
-      border: none;
-      border-radius: 20px;
-      padding: 6px 18px;
-      font-family: 'Nunito', sans-serif;
-      font-size: 13px;
-      font-weight: 800;
-      cursor: pointer;
-      transition: transform 0.15s, box-shadow 0.15s;
-      box-shadow: 0 3px 14px rgba(255,92,53,0.4);
-    }
-    .clean-btn:active { transform: scale(0.95); }
-
-    /* MAIN SCROLL AREA */
-    .scroll-area {
-      flex: 1;
-      overflow-y: auto;
-      overflow-x: hidden;
-      padding-bottom: 10px;
-      scrollbar-width: none;
-    }
-    .scroll-area::-webkit-scrollbar { display: none; }
-
-    /* LOGO */
-    .logo-section {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 24px 0 28px;
-      animation: fadeSlideDown 0.5s ease 0.1s both;
-    }
-    .logo-wrapper {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
-    .logo-icon {
-      width: 58px;
-      height: 58px;
-      background: linear-gradient(135deg, #1c1c2e, #2a2a4a);
-      border-radius: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 8px 24px rgba(79,127,255,0.25), inset 0 1px 0 rgba(255,255,255,0.08);
-      position: relative;
-      overflow: hidden;
-    }
-    .logo-icon::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(135deg, rgba(79,127,255,0.15), transparent);
-    }
-    .logo-n {
-      font-family: 'Nunito', sans-serif;
-      font-size: 32px;
-      font-weight: 900;
-      background: linear-gradient(135deg, #4f7fff, #a78bfa);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      position: relative;
-      z-index: 1;
-    }
-    .logo-text {
-      font-size: 42px;
-      font-weight: 900;
-      letter-spacing: -1px;
-      color: var(--text);
-    }
-
-    /* SEARCH BAR */
-    .search-section {
-      padding: 0 16px 24px;
-      animation: fadeSlideDown 0.5s ease 0.2s both;
-    }
-    .search-bar {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      background: var(--surface);
-      border: 1.5px solid var(--border);
-      border-radius: 16px;
-      padding: 13px 16px;
-      cursor: text;
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-    .search-bar:focus-within {
-      border-color: var(--nav-active);
-      box-shadow: 0 0 0 3px rgba(79,127,255,0.12);
-    }
-    .search-g {
-      font-family: 'Space Mono', monospace;
-      font-weight: 700;
-      font-size: 16px;
-      background: linear-gradient(135deg, #4285F4, #EA4335, #FBBC05, #34A853);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .search-bar input {
-      flex: 1;
-      background: transparent;
-      border: none;
-      outline: none;
-      font-family: 'Nunito', sans-serif;
-      font-size: 14px;
-      color: var(--muted);
-      font-weight: 600;
-    }
-    .search-bar input::placeholder { color: var(--muted); }
-    .ai-badge {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      background: #1e1e2e;
-      border: 1px solid #3a3a5a;
-      border-radius: 8px;
-      padding: 4px 8px;
-      font-size: 12px;
-      font-weight: 700;
-      color: #a78bfa;
-      letter-spacing: 0.05em;
-    }
-    .ai-star { font-size: 10px; }
-
-    /* SHORTCUTS GRID */
-    .shortcuts-section {
-      padding: 0 16px;
-      animation: fadeSlideDown 0.5s ease 0.3s both;
-    }
-    .shortcuts-grid {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 14px 8px;
-    }
-    .shortcut-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 7px;
-      cursor: pointer;
-    }
-    .shortcut-icon {
-      width: 52px;
-      height: 52px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-      font-weight: 900;
-      transition: transform 0.15s, box-shadow 0.15s;
-      flex-shrink: 0;
-    }
-    .shortcut-item:active .shortcut-icon { transform: scale(0.92); }
-    .shortcut-label {
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--text);
-      text-align: center;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: 60px;
-    }
-
-    /* Icon colors */
-    .ic-google { background: #fff; }
-    .ic-youtube { background: #ff0000; }
-    .ic-facebook { background: #1877f2; }
-    .ic-wescore { background: #00a651; }
-    .ic-betking { background: #0a1560; }
-    .ic-betpawa { background: #6abf1e; }
-    .ic-afropari { background: #1a6e2e; }
-    .ic-bet9ja { background: #1a6e2e; }
-    .ic-1xbet { background: #003087; }
-    .ic-more {
-      background: radial-gradient(circle, #1a1a2e 60%, #2a2a3a);
-      border: 1.5px solid var(--border);
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 4px;
-      padding: 10px;
-    }
-    .more-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-    }
-
-    /* SVG icons */
-    .shortcut-icon svg { width: 26px; height: 26px; }
-
-    /* BOTTOM NAV */
-    .bottom-nav {
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      padding: 10px 0 14px;
-      background: var(--surface);
-      border-top: 1px solid var(--border);
-      flex-shrink: 0;
-    }
-    .nav-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-      cursor: pointer;
-      position: relative;
-      min-width: 56px;
-    }
-    .nav-icon {
-      width: 28px;
-      height: 28px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-      position: relative;
-    }
-    .nav-label {
-      font-size: 10px;
-      font-weight: 700;
-      color: var(--muted);
-    }
-    .nav-item.active .nav-icon { color: var(--nav-active); }
-    .nav-item.active .nav-label { color: var(--nav-active); }
-    .nav-home-icon {
-      width: 32px;
-      height: 32px;
-      background: var(--nav-active);
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .badge {
-      position: absolute;
-      top: -4px;
-      right: -8px;
-      background: var(--accent);
-      color: #fff;
-      font-size: 8px;
-      font-weight: 800;
-      border-radius: 20px;
-      padding: 1px 5px;
-      min-width: 18px;
-      text-align: center;
-    }
-    .tabs-box {
-      width: 22px;
-      height: 22px;
-      border: 2.5px solid var(--muted);
-      border-radius: 5px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 9px;
-      font-weight: 800;
-      color: var(--muted);
-    }
-
-    /* SYSTEM NAR */
-    .system-bar {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 40px;
-      padding: 8px 0 10px;
-      background: var(--bg);
-      flex-shrink: 0;
-    }
-    .sys-btn {
-      width: 22px;
-      height: 22px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      opacity: 0.7;
-      cursor: pointer;
-    }
-
-    @keyframes fadeSlideDown {
-      from { opacity: 0; transform: translateY(-12px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-  </style>
-</head>
-<body>
-<div class="phone-frame">
-
-  <!-- STATUS BAR -->
-  <div class="status-bar">
-    <span class="status-left">1:24 AM</span>
-    <div class="status-right">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M1 8l11-6 11 6v10a2 2 0 01-2 2H3a2 2 0 01-2-2V8z" stroke="currentColor" stroke-width="2" fill="rgba(255,255,255,0.1)"/></svg>
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="2" y="8" width="3" height="13" rx="1"/><rect x="7" y="5" width="3" height="16" rx="1"/><rect x="12" y="2" width="3" height="19" rx="1"/><rect x="17" y="1" width="3" height="20" rx="1" opacity="0.4"/></svg>
-      <span style="font-size:9px;font-weight:700">H+</span>
-      <div class="battery"><div class="battery-fill"></div></div>
-      <span style="font-size:10px">98</span>
-    </div>
-  </div>
-
-  <!-- CLEAN BANNER -->
-  <div class="clean-banner">
-    <span>Clean 132.7MB Browsing Data.</span>
-    <button class="clean-btn">Clean</button>
-  </div>
-
-  <!-- SCROLL AREA -->
-  <div class="scroll-area">
-
-    <!-- LOGO -->
-    <div class="logo-section">
-      <div class="logo-wrapper">
-        <div class="logo-icon">
-          <span class="logo-n">N</span>
-        </div>
-        <span class="logo-text">NUVIO</span>
-      </div>
-    </div>
-
-    <!-- SEARCH -->
-    <div class="search-section">
-      <div class="search-bar">
-        <span class="search-g">G</span>
-        <input type="text" placeholder="Search or type web address" id="searchInput" onkeydown="handleSearch(event)" />
-        <div class="ai-badge"><span class="ai-star">✦</span> AI</div>
-      </div>
-    </div>
-
-    <!-- SHORTCUTS -->
-    <div class="shortcuts-section">
-      <div class="shortcuts-grid">
-
-        <!-- Google -->
-        <div class="shortcut-item">
-          <div class="shortcut-icon ic-google">
-            <svg viewBox="0 0 48 48"><path fill="#4285F4" d="M24 9.5c3.5 0 6.6 1.2 9 3.2l6.7-6.7C35.8 2.5 30.3 0 24 0 14.7 0 6.7 5.4 2.9 13.3l7.8 6c1.8-5.4 6.9-9.8 13.3-9.8z"/><path fill="#34A853" d="M46.6 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7c-.6 3-2.3 5.5-4.8 7.2l7.4 5.7c4.3-4 6.3-9.9 6.3-16.9z"/><path fill="#FBBC04" d="M10.7 28.6A14.6 14.6 0 019.5 24c0-1.6.3-3.1.8-4.6l-7.8-6A24 24 0 000 24c0 3.9.9 7.5 2.5 10.7l8.2-6.1z"/><path fill="#EA4335" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.4-5.7c-2.2 1.5-5 2.4-8.5 2.4-6.4 0-11.5-4.3-13.3-9.8l-7.8 6.1C6.7 42.6 14.7 48 24 48z"/></svg>
-          </div>
-          <span class="shortcut-label">Google</span>
-        </div>
-
-        <!-- YouTube -->
-        <div class="shortcut-item">
-          <div class="shortcut-icon ic-youtube">
-            <svg viewBox="0 0 48 48" fill="white"><path d="M44 15s-.5-3.5-2-5c-1.9-2-4-2-5-2.1C31 7.5 24 7.5 24 7.5s-7 0-13 .4c-1 .1-3.1.1-5 2.1-1.5 1.5-2 5-2 5S3.5 18.9 3.5 23v3.8c0 4.1.5 8.1.5 8.1s.5 3.5 2 5c1.9 2 4.4 1.9 5.5 2.1C15 42.4 24 42.5 24 42.5s7 0 13-.5c1-.1 3.1-.1 5-2.1 1.5-1.5 2-5 2-5s.5-4 .5-8.1V23c0-4.1-.5-8-.5-8zM20 30V18l13 6-13 6z"/></svg>
-          </div>
-          <span class="shortcut-label">YouTube</span>
-        </div>
-
-        <!-- Facebook -->
-        <div class="shortcut-item">
-          <div class="shortcut-icon ic-facebook">
-            <svg viewBox="0 0 48 48" fill="white"><path d="M42 24C42 13 33 4 22 4S2 13 2 24c0 10 7.3 18.3 17 19.8V30h-5v-6h5v-4.5c0-5 3-7.8 7.5-7.8 2.2 0 4.5.4 4.5.4V17h-2.5c-2.5 0-3.3 1.6-3.3 3.1V24h5.5l-.9 6H25v13.8C34.7 42.3 42 34 42 24z"/></svg>
-          </div>
-          <span class="shortcut-label">Facebook</span>
-        </div>
-
-        <!-- WeScore -->
-        <div class="shortcut-item">
-          <div class="shortcut-icon ic-wescore">
-            <svg viewBox="0 0 48 48" fill="white"><circle cx="24" cy="24" r="20" stroke="white" stroke-width="2.5" fill="none"/><path d="M14 24l5 5 10-10" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
-          </div>
-          <span class="shortcut-label">WeScore</span>
-        </div>
-
-        <!-- BetKing -->
-        <div class="shortcut-item">
-          <div class="shortcut-icon ic-betking">
-            <svg viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="20" fill="#0a1560"/><text x="24" y="20" text-anchor="middle" font-size="13" font-weight="900" fill="#f5c518" font-family="Nunito,sans-serif">K</text><text x="24" y="33" text-anchor="middle" font-size="7" font-weight="800" fill="#f5c518" font-family="Nunito,sans-serif">GET N1M</text></svg>
-          </div>
-          <span class="shortcut-label">BetKing</span>
-        </div>
-
-        <!-- betPawa -->
-        <div class="shortcut-item">
-          <div class="shortcut-icon ic-betpawa">
-            <svg viewBox="0 0 48 48" fill="white"><text x="24" y="32" text-anchor="middle" font-size="20" font-weight="900" font-family="Nunito,sans-serif">bP</text></svg>
-          </div>
-          <span class="shortcut-label">betPawa</span>
-        </div>
-
-        <!-- Afropari -->
-        <div class="shortcut-item">
-          <div class="shortcut-icon ic-afropari">
-            <svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="22" fill="#1a6e2e"/><text x="24" y="32" text-anchor="middle" font-size="16" font-weight="900" fill="#f5c518" font-family="Nunito,sans-serif">AP</text></svg>
-          </div>
-          <span class="shortcut-label">Afropari</span>
-        </div>
-
-        <!-- Bet9ja -->
-        <div class="shortcut-item">
-          <div class="shortcut-icon ic-bet9ja">
-            <svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="22" fill="#1a6e2e"/><text x="24" y="32" text-anchor="middle" font-size="13" font-weight="900" fill="white" font-family="Nunito,sans-serif">bet9ja</text></svg>
-          </div>
-          <span class="shortcut-label">Bet9ja</span>
-        </div>
-
-        <!-- 1XBET -->
-        <div class="shortcut-item">
-          <div class="shortcut-icon ic-1xbet">
-            <svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="22" fill="#003087"/><text x="24" y="22" text-anchor="middle" font-size="12" font-weight="900" fill="white" font-family="Nunito,sans-serif">1X</text><text x="24" y="34" text-anchor="middle" font-size="8" font-weight="800" fill="#f5c518" font-family="Nunito,sans-serif">BONUS</text></svg>
-          </div>
-          <span class="shortcut-label">1XBET</span>
-        </div>
-
-        <!-- More -->
-        <div class="shortcut-item">
-          <div class="shortcut-icon ic-more">
-            <div class="more-dot" style="background:#e74c3c"></div>
-            <div class="more-dot" style="background:#e67e22"></div>
-            <div class="more-dot" style="background:#27ae60"></div>
-            <div class="more-dot" style="background:#3498db"></div>
-          </div>
-          <span class="shortcut-label">More</span>
-        </div>
-
-      </div>
-    </div>
-  </div>
-
-  <!-- BOTTOM NAV -->
-  <div class="bottom-nav">
-    <div class="nav-item active">
-      <div class="nav-icon">
-        <div class="nav-home-icon">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-        </div>
-      </div>
-      <span class="nav-label" style="color:var(--nav-active)">Home</span>
-    </div>
-
-    <div class="nav-item">
-      <div class="nav-icon" style="color:var(--muted)">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-        <span class="badge">99+</span>
-      </div>
-      <span class="nav-label">Explore</span>
-    </div>
-
-    <div class="nav-item">
-      <div class="nav-icon" style="color:var(--muted)">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-      </div>
-      <span class="nav-label">Files</span>
-    </div>
-
-    <div class="nav-item">
-      <div class="nav-icon" style="color:var(--muted)">
-        <div class="tabs-box">12</div>
-      </div>
-      <span class="nav-label">Tabs</span>
-    </div>
-
-    <div class="nav-item">
-      <div class="nav-icon" style="color:var(--muted); position:relative">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        <span style="position:absolute;top:-2px;right:-2px;width:8px;height:8px;background:var(--accent);border-radius:50%;border:1.5px solid var(--surface)"></span>
-      </div>
-      <span class="nav-label">Me</span>
-    </div>
-  </div>
-
-  <!-- SYSTEM BAR -->
-  <div class="system-bar">
-    <div class="sys-btn">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="3"/></svg>
-    </div>
-    <div class="sys-btn">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>
-    </div>
-    <div class="sys-btn">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="rgba(255,255,255,0.5)"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
-    </div>
-  </div>
-
-</div>
-<script>
-  function handleSearch(e) {
-    if (e.key === 'Enter') {
-      const query = document.getElementById('searchInput').value.trim();
-      if (!query) return;
-      const isURL = /^(https?:\/\/|www\.)\S+/.test(query);
-      const url = isURL
-        ? (query.startsWith('http') ? query : 'https://' + query)
-        : 'https://www.google.com/search?q=' + encodeURIComponent(query);
-      window.open(url, '_blank');
-    }
+  body {
+    background: #0a0a0a;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Exo 2', sans-serif;
   }
 
-  document.querySelector('.search-bar').addEventListener('click', function() {
-    document.getElementById('searchInput').focus();
-  });
+  .logo-section {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 48px;
+  }
 
-  document.querySelectorAll('.shortcut-item').forEach(item => {
-    item.addEventListener('click', function() {
-      const label = this.querySelector('.shortcut-label').textContent.trim();
-      const urls = {
-        'Google': 'https://www.google.com',
-        'YouTube': 'https://www.youtube.com',
-        'Facebook': 'https://www.facebook.com',
-        'WeScore': 'https://www.wescore.com',
-        'BetKing': 'https://www.betking.com',
-        'betPawa': 'https://www.betpawa.com',
-        'Afropari': 'https://www.afropari.com',
-        'Bet9ja': 'https://www.bet9ja.com',
-        '1XBET': 'https://www.1xbet.com',
-      };
-      if (urls[label]) window.open(urls[label], '_blank');
-    });
-  });
+  .logo-icon {
+    width: 72px;
+    height: 72px;
+    background: linear-gradient(145deg, #1e1e3a, #2a2a50);
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 30px rgba(100, 100, 255, 0.25);
+  }
 
-  document.querySelector('.clean-btn').addEventListener('click', function() {
-    this.textContent = 'Done ✓';
-    this.style.background = 'linear-gradient(135deg,#27ae60,#2ecc71)';
-    setTimeout(() => {
-      this.textContent = 'Clean';
-      this.style.background = '';
-      document.querySelector('.clean-banner span').textContent = 'Browsing data cleared!';
-    }, 1500);
-  });
-</script>
+  .logo-icon span {
+    font-size: 32px;
+    font-weight: 800;
+    color: #8888ff;
+    letter-spacing: -1px;
+  }
+
+  .logo-text {
+    font-size: 48px;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+
+  .search-bar {
+    width: 90%;
+    max-width: 420px;
+    background: #1c1c1c;
+    border-radius: 30px;
+    display: flex;
+    align-items: center;
+    padding: 14px 16px;
+    gap: 10px;
+    border: 1px solid #2a2a2a;
+  }
+
+  .search-g {
+    font-size: 18px;
+    font-weight: 700;
+    color: #EA4335;
+    font-family: serif;
+    flex-shrink: 0;
+  }
+
+  .search-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #888;
+    font-size: 15px;
+    font-family: 'Exo 2', sans-serif;
+  }
+
+  .search-input::placeholder { color: #666; }
+
+  .ai-btn {
+    background: transparent;
+    border: 1.5px solid #4a4a7a;
+    border-radius: 12px;
+    color: #8888cc;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 6px 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+    transition: border-color 0.2s, color 0.2s;
+  }
+
+  .ai-btn:hover { border-color: #8888ff; color: #aaaaff; }
+
+  .ai-btn::before {
+    content: '✦';
+    font-size: 10px;
+    color: #8888cc;
+  }
+</style>
+</head>
+<body>
+
+  <div class="logo-section">
+    <div class="logo-icon"><span>N</span></div>
+    <div class="logo-text">NUVIO</div>
+  </div>
+
+  <div class="search-bar">
+    <span class="search-g">G</span>
+    <input class="search-input" type="text" placeholder="Search or type web address">
+    <button class="ai-btn">AI</button>
+  </div>
+
 </body>
 </html>
